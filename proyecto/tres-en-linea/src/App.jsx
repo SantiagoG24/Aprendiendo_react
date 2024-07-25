@@ -4,12 +4,13 @@ import { TURNS } from './constants.js'
 import { checkEndGame,checkWinner } from './logic/board.js'
 import { WinnerModal } from './Components/WinnerModal.jsx'
 import { useState } from 'react'
+import { } from './Components/ButtonResetGame.jsx'
 function App() {
-
-  const [board,setBoard] = useState(Array(9).fill(null))
+  const [board,setBoard] = useState(()=>{
+    const boardFromStorage= window.localStorage.getItem('board')
+    return boardFromStorage ? JSON.parse(boardFromStorage) : Array(9).fill(null)})
   const [turn,setTurn] = useState(TURNS.X)
   const [winner,setWinner] =useState(null) //null es no hay ganador true hay ganador y false hay empate
-
   const resetGame = ()=>{
     setBoard(Array(9).fill(null))
     setTurn(TURNS.X)
@@ -24,6 +25,9 @@ function App() {
     //actualizo los turnos 
     const newTurn = turn=== TURNS.X ? TURNS.O : TURNS.X
     setTurn(newTurn)
+    // guardar partida 
+    window.localStorage.setItem('board',JSON.stringify(newBoard))
+    window.localStorage.setItem('turn',turn)
     // revisar ganador
     const newWinner = checkWinner(newBoard)
     if(newWinner){
@@ -55,8 +59,13 @@ function App() {
       <section className='turn'>
         <Square isSelected={turn === TURNS.X}>{TURNS.X}</Square>
         <Square isSelected={turn === TURNS.O}>{TURNS.O}</Square>
+        
+        <button onClick={resetGame}>
+            Empezar de nuevo
+        </button>
       </section>
       <WinnerModal resetGame={resetGame} winner={winner}/>
+
       </main>
     </>
   )
